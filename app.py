@@ -20,12 +20,12 @@ import os
 
 # Page configuration
 st.set_page_config(
-    page_title="HealthScope AI",
+    page_title="Health Care AI",
     # layout="wide"
 )
 
 st.title("Health Care AI")
-st.write("Health Care is an intelligent platform that empowers healthcare professionals and researchers to analyze medical videos and gain actionable insights. With integrated AI and web search capabilities, it simplifies learning and decision-making in healthcare.")
+st.write("Health Care AI is an intelligent platform that empowers healthcare professionals and researchers to analyze medical videos and gain actionable insights. With integrated AI and web search capabilities, it simplifies learning and decision-making in healthcare.")
 
 
 @st.cache_resource
