@@ -11,12 +11,12 @@ from pathlib import Path
 import tempfile
 import os
 
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
-# API_KEY=os.getenv("GOOGLE_API_KEY")
-# if API_KEY:
-#     genai.configure(api_key=API_KEY)
+API_KEY=os.getenv("GOOGLE_API_KEY")
+if API_KEY:
+    genai.configure(api_key=API_KEY)
 
 # Page configuration
 st.set_page_config(
@@ -39,19 +39,6 @@ def initialize_agent():
 
 ## Initialize the agent
 multimodal_Agent=initialize_agent()
-
-# API Key Input
-api_key = st.text_input(
-    "Enter your Google API Key:",
-    type="password",
-    help="Provide your Google API Key to enable AI functionalities."
-)
-
-if api_key:
-    genai.configure(api_key=api_key)
-    st.success("API Key successfully configured!")
-else:
-    st.warning("Please enter a valid API Key to proceed.")
 
 # File uploader
 video_file = st.file_uploader(
