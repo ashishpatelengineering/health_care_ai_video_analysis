@@ -20,13 +20,12 @@ if API_KEY:
 
 # Page configuration
 st.set_page_config(
-    page_title="Health Care AI",
+    page_title="Medical Video Analysis",
     # layout="wide"
 )
 
-st.title("Health Care AI")
-st.write("Health Care AI is an intelligent platform that empowers healthcare professionals and researchers to analyze medical videos and gain actionable insights. With integrated AI and web search capabilities, it simplifies learning and decision-making in healthcare.")
-
+st.title("Medical Video Analysis")
+st.write("This app utilizes artificial intelligence to assist healthcare professionals and researchers in analyzing medical videos and gaining insights. With integrated Agentic AI and web search features, it supports learning and informed decision-making in healthcare.")
 
 @st.cache_resource
 def initialize_agent():
