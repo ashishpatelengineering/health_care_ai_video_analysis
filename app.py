@@ -7,6 +7,8 @@ import google.generativeai as genai
 import time
 from pathlib import Path
 import tempfile
+from dotenv import load_dotenv
+import os
 
 def main():
     # Page configuration
@@ -18,20 +20,12 @@ def main():
     st.write("This app utilizes artificial intelligence to assist healthcare professionals and researchers in analyzing medical videos and gaining insights. With integrated Agentic AI and web search features, it supports learning and informed decision-making in healthcare.")
 
     # Input API key through Streamlit UI
-    api_key = st.text_input(
-        "Enter your Google API Key:",
-        type="password",
-        help="Input your Google API Key to use the application."
-    )
-
-    if not api_key:
-        st.warning("Please enter your Google API Key to proceed.")
-        st.stop()  # Stop execution until API key is provided
+    load_dotenv()
+    api_key = os.getenv("GEMINI_API_KEY")
 
     # Configure the API key
     genai.configure(api_key=api_key)
 
-    @staticmethod
     @st.cache_resource
     def initialize_agent():
         return Agent(
