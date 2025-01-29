@@ -1,106 +1,112 @@
-# Source: https://www.youtube.com/watch?v=Ih1LDnPijFU
-
 import streamlit as st 
 from phi.agent import Agent
 from phi.model.google import Gemini
 from phi.tools.duckduckgo import DuckDuckGo
-from google.generativeai import upload_file,get_file
+from google.generativeai import upload_file, get_file
 import google.generativeai as genai
 import time
 from pathlib import Path
 import tempfile
-import os
 
-from dotenv import load_dotenv
-load_dotenv()
-
-API_KEY=os.getenv("GOOGLE_API_KEY")
-if API_KEY:
-    genai.configure(api_key=API_KEY)
-
-# Page configuration
-st.set_page_config(
-    page_title="Medical Video Analysis",
-    # layout="wide"
-)
-
-st.title("Medical Video Analysis")
-st.write("This app utilizes artificial intelligence to assist healthcare professionals and researchers in analyzing medical videos and gaining insights. With integrated Agentic AI and web search features, it supports learning and informed decision-making in healthcare.")
-
-@st.cache_resource
-def initialize_agent():
-    return Agent(
-        name="Video AI Summarizer",
-        model=Gemini(id="gemini-2.0-flash-exp"),
-        tools=[DuckDuckGo()],
-        markdown=True,
+def main():
+    # Page configuration
+    st.set_page_config(
+        page_title="Medical Video Analysis",
     )
 
-## Initialize the agent
-multimodal_Agent=initialize_agent()
+    st.title("Medical Video Analysis")
+    st.write("This app utilizes artificial intelligence to assist healthcare professionals and researchers in analyzing medical videos and gaining insights. With integrated Agentic AI and web search features, it supports learning and informed decision-making in healthcare.")
 
-# File uploader
-video_file = st.file_uploader(
-    "Upload a Video File for AI Analysis:", type=['mp4', 'mov', 'avi'], help="Upload a Video File for AI Analysis"
-)
-
-if video_file:
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as temp_video:
-        temp_video.write(video_file.read())
-        video_path = temp_video.name
-
-    st.video(video_path, format="video/mp4", start_time=0)
-
-    user_query = st.text_area(
-        "What insights are you seeking from the video?",
-        placeholder="Ask anything about the video content.",
-        help="Provide specific questions or insights you want from the video."
+    # Input API key through Streamlit UI
+    api_key = st.text_input(
+        "Enter your Google API Key:",
+        type="password",
+        help="Input your Google API Key to use the application."
     )
 
-    if st.button("Analyse Video", key="analyze_video_button"):
-        if not user_query:
-            st.warning("Please enter a question or insight to analyze the video.")
-        else:
-            try:
-                with st.spinner("Processing video and gathering insights..."):
-                    # Upload and process video file
-                    processed_video = upload_file(video_path)
-                    while processed_video.state.name == "PROCESSING":
-                        time.sleep(1)
-                        processed_video = get_file(processed_video.name)
+    if not api_key:
+        st.warning("Please enter your Google API Key to proceed.")
+        st.stop()  # Stop execution until API key is provided
 
-                    # Prompt generation for analysis
-                    analysis_prompt = (
-                        f"""
-                        Analyze the uploaded video for content and context.
-                        Respond to the following query using video insights and supplementary web research:
-                        {user_query}
+    # Configure the API key
+    genai.configure(api_key=api_key)
 
-                        Provide a detailed, user-friendly, and actionable response.
-                        """
-                    )
+    @st.cache_resource
+    def initialize_agent():
+        return Agent(
+            name="Video AI Summarizer",
+            model=Gemini(id="gemini-2.0-flash-exp"),
+            tools=[DuckDuckGo()],
+            markdown=True,
+        )
 
-                    # AI agent processing
-                    response = multimodal_Agent.run(analysis_prompt, videos=[processed_video])
+    # Initialize the agent
+    try:
+        multimodal_Agent = initialize_agent()
+    except Exception as error:
+        st.error("Failed to initialize the AI agent. Please check your API Key.")
+        st.stop()
 
-                # Display the result
-                st.subheader("Analysis Result")
-                st.markdown(response.content)
+    # File uploader
+    video_file = st.file_uploader(
+        "Upload a Video File for AI Analysis:", type=['mp4', 'mov', 'avi'], help="Upload a Video File for AI Analysis"
+    )
 
-            except Exception as error:
-                st.error(f"An error occurred during analysis: {error}")
-            finally:
-                # Clean up temporary video file
-                Path(video_path).unlink(missing_ok=True)
+    if video_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as temp_video:
+            temp_video.write(video_file.read())
+            video_path = temp_video.name
 
-# Customize text area height
-st.markdown(
-    """
-    <style>
-    .stTextArea textarea {
-        height: 100px;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+        st.video(video_path, format="video/mp4", start_time=0)
+
+        user_query = st.text_area(
+            "What insights are you seeking from the video?",
+            placeholder="Ask anything about the video content.",
+            help="Provide specific questions or insights you want from the video."
+        )
+
+        if st.button("Analyse Video", key="analyze_video_button"):
+            if not user_query:
+                st.warning("Please enter a question or insight to analyze the video.")
+            else:
+                try:
+                    with st.spinner("Processing video and gathering insights..."):
+                        # Upload and process video file
+                        processed_video = upload_file(video_path)
+                        while processed_video.state.name == "PROCESSING":
+                            time.sleep(1)
+                            processed_video = get_file(processed_video.name)
+
+                        # Prompt generation for analysis
+                        analysis_prompt = (
+                            f"""
+                            Analyze the uploaded video for content and context.
+                            Respond to the following query using video insights and supplementary web research:
+                            {user_query}
+
+                            Provide a detailed, user-friendly, and actionable response.
+                            """
+                        )
+
+                        # AI agent processing
+                        response = multimodal_Agent.run(analysis_prompt, videos=[processed_video])
+
+                    # Display the result
+                    st.subheader("Analysis Result")
+                    st.markdown(response.content)
+
+                except Exception as error:
+                    error_message = str(error)
+                    if "API_KEY_INVALID" in error_message:
+                        st.error("The provided API key is invalid. Please check and enter a valid key.")
+                    else:
+                        st.error("An unexpected error occurred during analysis. Please try again later.")
+                finally:
+                    # Clean up temporary video file
+                    Path(video_path).unlink(missing_ok=True)
+    else:
+        st.info("Please upload a video file to proceed.")
+
+# Run the app
+if __name__ == "__main__":
+    main()
