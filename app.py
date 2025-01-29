@@ -31,6 +31,7 @@ def main():
     # Configure the API key
     genai.configure(api_key=api_key)
 
+    @staticmethod
     @st.cache_resource
     def initialize_agent():
         return Agent(
