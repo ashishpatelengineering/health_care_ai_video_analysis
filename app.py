@@ -43,7 +43,7 @@ def main():
         st.stop()
 
     # File uploader
-    video_file = st.file_uploader(
+    video_file = st.sidebar.file_uploader(
         "Upload a Video File for AI Analysis:", type=['mp4', 'mov', 'avi'], help="Upload a Video File for AI Analysis"
     )
 
