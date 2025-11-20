@@ -96,6 +96,7 @@ def main():
                         st.error("The provided API key is invalid. Please check and enter a valid key.")
                     else:
                         st.error("An unexpected error occurred during analysis. Please try again later.")
+                        st.write(error)
                 finally:
                     # Clean up temporary video file
                     Path(video_path).unlink(missing_ok=True)
@@ -105,3 +106,4 @@ def main():
 # Run the app
 if __name__ == "__main__":
     main()
+
