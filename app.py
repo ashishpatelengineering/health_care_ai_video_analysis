@@ -30,7 +30,7 @@ def main():
     def initialize_agent():
         return Agent(
             name="Video AI Summarizer",
-            model=Gemini(id="gemini-2.0-flash-exp"),
+            model=Gemini(id="gemini-2.0-flash"),
             tools=[DuckDuckGo()],
             markdown=True,
         )
@@ -106,4 +106,5 @@ def main():
 # Run the app
 if __name__ == "__main__":
     main()
+
 
